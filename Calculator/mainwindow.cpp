@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QtMath>
 double firstOp;
-bool typing;
+bool typing = false;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -25,11 +25,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect( ui -> pushButton_Multiply, SIGNAL( released() ), this, SLOT( binary_operation_pressed() ) );
     connect( ui -> pushButton_Divide, SIGNAL( released() ), this, SLOT( binary_operation_pressed() ) );
     connect( ui -> pushButton_MInus, SIGNAL( released() ), this, SLOT( binary_operation_pressed() ) );
+    connect( ui -> pushButton_Sin, SIGNAL( released() ), this, SLOT( unary_operation_pressed() ) );
+    connect( ui -> pushButton_Cos, SIGNAL( released() ), this, SLOT( unary_operation_pressed() ) );
+    connect( ui -> pushButton_Power, SIGNAL( released() ), this, SLOT( binary_operation_pressed() ) );
 
     ui -> pushButton_Add -> setCheckable( true );
     ui -> pushButton_MInus -> setCheckable( true );
     ui -> pushButton_Multiply -> setCheckable( true );
     ui -> pushButton_Divide -> setCheckable( true );
+    ui -> pushButton_Power -> setCheckable( true );
 
 }
 
@@ -44,8 +48,7 @@ void MainWindow:: digit_pressed()
     QPushButton* button = ( QPushButton* ) sender();
     double labelNumber;
     QString newLabel;
-
-    if( ( ui -> pushButton_Add -> isChecked() ||  ui -> pushButton_MInus -> isChecked() ||  ui -> pushButton_Multiply -> isChecked() ||  ui -> pushButton_Divide -> isChecked() ) && !typing ){
+    if( ( ui -> pushButton_Add -> isChecked() ||  ui -> pushButton_MInus -> isChecked() ||  ui -> pushButton_Multiply -> isChecked() ||  ui -> pushButton_Divide -> isChecked() || ui -> pushButton_Power -> isChecked() ) && !typing ){
         labelNumber = button -> text().toDouble();
         typing = true;
         newLabel = QString::number( labelNumber, 'g', 15 );
@@ -84,6 +87,19 @@ void MainWindow:: unary_operation_pressed()
         newLabel = QString::number( labelNumber, 'g', 15 );
         ui -> label -> setText( newLabel );
     }
+    else if( button -> text() == "sin" ){
+        labelNumber = ui -> label -> text().toDouble();
+        labelNumber = qSin( qRadiansToDegrees( labelNumber ) );
+        newLabel = QString::number( labelNumber, 'g', 15 );
+        ui -> label -> setText( newLabel );
+    }
+    else if( button -> text() == "cos" ){
+        labelNumber = ui -> label -> text().toDouble();
+        labelNumber = qCos( qRadiansToDegrees( labelNumber ) );
+        newLabel = QString::number( labelNumber, 'g', 15 );
+        ui -> label -> setText( newLabel );
+    }
+
 }
 
 void MainWindow::on_pushButton_Clear_released()
@@ -126,6 +142,12 @@ void MainWindow::on_pushButton_Equals_released()
         newLabel = QString :: number( labelNumber, 'g', 15 );
         ui -> label -> setText( newLabel );
         ui -> pushButton_Divide -> setChecked(false);
+    }
+    else if( ui -> pushButton_Power -> isChecked() ){
+        labelNumber = qPow( firstOp, secondOp );
+        newLabel = QString :: number( labelNumber, 'g', 15 );
+        ui -> label -> setText( newLabel );
+        ui -> pushButton_Power -> setChecked(false);
     }
     typing = false;
 }
